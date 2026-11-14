@@ -1,10 +1,13 @@
 package qusb2snes
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"testing"
@@ -173,5 +176,40 @@ func TestDriver_ReadWrite(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+func TestDriver_DetectNonWebsocketServer(t *testing.T) {
+	// a plain HTTP server where the websocket server should be:
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := &http.Server{Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("hello"))
+	})}
+	go func() { _ = srv.Serve(lis) }()
+	t.Cleanup(func() { _ = srv.Close() })
+
+	var logs bytes.Buffer
+	log.SetOutput(&logs)
+	t.Cleanup(func() { log.SetOutput(os.Stderr) })
+
+	d := &Driver{host: lis.Addr().String()}
+	d.container = devices.NewDeviceDriverContainer(d.openDevice)
+	for i := 0; i < 5; i++ {
+		devs, err := d.Detect()
+		if err != nil || len(devs) != 0 {
+			t.Fatalf("expected no devices and no error; got %v, %v", devs, err)
+		}
+	}
+	if n := bytes.Count(logs.Bytes(), []byte("qusb2snes: detect")); n != 1 {
+		t.Errorf("expected the detection failure to be logged once; logged %d times:\n%s", n, logs.String())
+	}
+}
+
+func TestDriverInit_UsesPort23074(t *testing.T) {
+	if host != "localhost:23074" {
+		t.Fatalf("unexpected usb2snes server address %q", host)
 	}
 }

@@ -5,6 +5,7 @@
 package qusb2snes
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -18,7 +19,9 @@ import (
 
 const driverName = "qusb2snes"
 
-const defaultHost = "localhost:8080"
+// host is the usb2snes websocket server address. QUsb2Snes (and SNI's usb2snes server) listen on port 23074; the
+// legacy port 8080 is not used.
+const host = "localhost:23074"
 
 var driver *Driver
 
@@ -27,6 +30,9 @@ type Driver struct {
 
 	// host:port of the usb2snes websocket server:
 	host string
+
+	// lastDetectErr suppresses repeated logging of the same detection failure:
+	lastDetectErr string
 
 	// wsLock serializes commands across all websockets; the DeviceList opcode breaks other websockets.
 	wsLock sync.Mutex
@@ -65,17 +71,18 @@ func (d *Driver) Detect() (devs []devices.DeviceDescriptor, err error) {
 		return
 	}
 
+	// a server that is not running or not responding is not an error; there are just no devices. Detection is
+	// polled frequently so failures are only logged when they change.
 	var ws WebSocketClient
 	err = NewWebSocketClient(&ws, d.wsURL(), RandomName("o2d"))
 	defer func() {
 		_ = ws.Close()
 	}()
 	if err != nil {
-		// silence "connection refused" errors when the server is not running:
-		if util.IsConnectionRefused(err) {
-			err = nil
+		if !util.IsConnectionRefused(err) {
+			d.logDetectErr(err)
 		}
-		return
+		return nil, nil
 	}
 
 	d.wsLock.Lock()
@@ -87,15 +94,17 @@ func (d *Driver) Detect() (devs []devices.DeviceDescriptor, err error) {
 		Operands: []string{},
 	})
 	if err != nil {
-		err = fmt.Errorf("qusb2snes: DeviceList request: %w", err)
-		return
+		d.logDetectErr(fmt.Errorf("DeviceList request: %w", err))
+		return nil, nil
 	}
 
 	var list qusbResult
 	err = ws.ReadCommandResponse("DeviceList", &list)
 	if err != nil {
-		return
+		d.logDetectErr(err)
+		return nil, nil
 	}
+	d.logDetectOk()
 
 	devs = make([]devices.DeviceDescriptor, 0, len(list.Results))
 	for _, name := range list.Results {
@@ -115,6 +124,33 @@ func (d *Driver) Detect() (devs []devices.DeviceDescriptor, err error) {
 	return
 }
 
+// logDetectErr logs a detection failure unless it is the same as the previous one. Errors are compared by their
+// root cause since the wrapping messages include the randomly generated client name.
+func (d *Driver) logDetectErr(err error) {
+	for errors.Unwrap(err) != nil {
+		err = errors.Unwrap(err)
+	}
+	msg := err.Error()
+	d.detectedLock.Lock()
+	repeat := d.lastDetectErr == msg
+	d.lastDetectErr = msg
+	d.detectedLock.Unlock()
+	if !repeat {
+		log.Printf("qusb2snes: detect at %s: %v\n", d.host, err)
+	}
+}
+
+// logDetectOk notes a successful detection so the next failure is logged again.
+func (d *Driver) logDetectOk() {
+	d.detectedLock.Lock()
+	wasFailing := d.lastDetectErr != ""
+	d.lastDetectErr = ""
+	d.detectedLock.Unlock()
+	if wasFailing {
+		log.Printf("qusb2snes: detect at %s: server is reachable\n", d.host)
+	}
+}
+
 func (d *Driver) DeviceKey(uri *url.URL) string {
 	return uri.Host + "/" + uri.Query().Get("device")
 }
@@ -124,13 +160,9 @@ func (d *Driver) Device(uri *url.URL) devices.AutoCloseableDevice {
 }
 
 func (d *Driver) openDevice(uri *url.URL) (devices.Device, error) {
-	host := uri.Host
-	if host == "" {
-		host = d.host
-	}
-
+	// always connect to the driver's server address, regardless of the host recorded in the URI:
 	dev := &Device{d: d, deviceName: uri.Query().Get("device")}
-	if err := NewWebSocketClient(&dev.ws, fmt.Sprintf("ws://%s/", host), RandomName("o2")); err != nil {
+	if err := NewWebSocketClient(&dev.ws, d.wsURL(), RandomName("o2")); err != nil {
 		return nil, devices.DeviceFatal("qusb2snes: could not connect", err)
 	}
 	if err := dev.init(); err != nil {
@@ -152,18 +184,12 @@ func (d *Driver) DisconnectAll() {
 	}
 }
 
-// DriverInit registers the qusb2snes driver unless "qusb2snes_disable" is set. The websocket server address is read
-// from "qusb2snes_host" (default localhost:8080).
+// DriverInit registers the qusb2snes driver unless "qusb2snes_disable" is set. The driver connects to the usb2snes
+// websocket server at localhost:23074.
 func DriverInit() {
-	cfg := config.Get()
-	if cfg.GetBool("qusb2snes_disable") {
+	if config.Get().GetBool("qusb2snes_disable") {
 		log.Printf("disabling qusb2snes snes driver\n")
 		return
-	}
-
-	host := cfg.GetString("qusb2snes_host")
-	if host == "" {
-		host = defaultHost
 	}
 
 	driver = &Driver{host: host}

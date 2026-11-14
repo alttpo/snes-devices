@@ -15,7 +15,7 @@ SNES device drivers shared by [SNI](https://github.com/alttpo/sni) and [o2](http
 | `drivers/emunwa` | Emulators implementing the Emulator Network Access protocol |
 | `drivers/luabridge` | Emulators running SNI's Lua bridge script |
 | `drivers/mock` | A mock device for testing |
-| `drivers/qusb2snes` | Devices behind a usb2snes websocket server such as QUsb2Snes |
+| `drivers/qusb2snes` | Devices behind a usb2snes websocket server such as QUsb2Snes, at `localhost:23074` |
 | `drivers/sniclient` | Devices behind a running SNI service, over its gRPC API |
 
 ## Using the drivers
@@ -51,7 +51,6 @@ maps them to its own sources (for example SNI reads `SNI_*` environment variable
 | `luabridge_listen_host`, `luabridge_listen_port` | luabridge | address to listen on for Lua scripts |
 | `mock_enable` | mock | register the mock driver |
 | `qusb2snes_disable` | qusb2snes | do not register |
-| `qusb2snes_host` | qusb2snes | websocket server `host:port` (default `localhost:8080`) |
 | `sni_disable` | sniclient | do not register |
 | `sni_grpc_addr` | sniclient | SNI gRPC `host:port` (default `localhost:8191`) |
 
