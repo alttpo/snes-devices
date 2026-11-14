@@ -37,8 +37,9 @@ func (d *Device) IsClosed() bool {
 	return false
 }
 
+// Close keeps the mock device running; it is shared across opens (see Driver.openDevice).
 func (d *Device) Close() error {
-	panic("implement me")
+	return nil
 }
 
 func (d *Device) RequiresMemoryMappingForAddressSpace(ctx context.Context, addressSpace sni.AddressSpace) (bool, error) {
