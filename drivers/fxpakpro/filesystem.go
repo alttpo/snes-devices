@@ -2,8 +2,8 @@ package fxpakpro
 
 import (
 	"context"
-	"io"
 	"github.com/alttpo/snes-devices/devices"
+	"io"
 )
 
 func (d *Device) ReadDirectory(ctx context.Context, path string) ([]devices.DirEntry, error) {

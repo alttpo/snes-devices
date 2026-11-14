@@ -2,13 +2,13 @@ package retroarch
 
 import (
 	"fmt"
+	"github.com/alttpo/snes-devices/config"
+	"github.com/alttpo/snes-devices/devices"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"log"
 	"net"
 	"net/url"
 	"runtime/debug"
-	"github.com/alttpo/snes-devices/config"
-	"github.com/alttpo/snes-devices/devices"
-	"github.com/alttpo/snes-devices/protos/sni"
 	"strings"
 	"sync"
 	"time"

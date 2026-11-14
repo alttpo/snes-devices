@@ -2,12 +2,12 @@ package mapping
 
 import (
 	"fmt"
+	"github.com/alttpo/snes-devices/devices"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"github.com/alttpo/snes/mapping/exhirom"
 	"github.com/alttpo/snes/mapping/hirom"
 	"github.com/alttpo/snes/mapping/lorom"
 	"github.com/alttpo/snes/mapping/sa1rom"
-	"github.com/alttpo/snes-devices/devices"
-	"github.com/alttpo/snes-devices/protos/sni"
 )
 
 var ErrUnknownMapping = fmt.Errorf("cannot remap an address using an Unknown memory mapping; call MappingDetect to detect it from the ROM")

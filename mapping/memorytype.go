@@ -1,12 +1,12 @@
 package mapping
 
 import (
+	"github.com/alttpo/snes-devices/devices"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"github.com/alttpo/snes/mapping/exhirom"
 	"github.com/alttpo/snes/mapping/hirom"
 	"github.com/alttpo/snes/mapping/lorom"
 	"github.com/alttpo/snes/mapping/sa1rom"
-	"github.com/alttpo/snes-devices/devices"
-	"github.com/alttpo/snes-devices/protos/sni"
 )
 
 type MemoryType string

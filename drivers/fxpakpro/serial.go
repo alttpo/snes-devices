@@ -5,11 +5,11 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"github.com/alttpo/snes-devices/devices"
 	"go.bug.st/serial"
 	"io"
 	"log"
 	"runtime/trace"
-	"github.com/alttpo/snes-devices/devices"
 	"time"
 )
 

@@ -1,11 +1,11 @@
 package mock
 
 import (
-	"log"
-	"net/url"
 	"github.com/alttpo/snes-devices/config"
 	"github.com/alttpo/snes-devices/devices"
 	"github.com/alttpo/snes-devices/protos/sni"
+	"log"
+	"net/url"
 )
 
 const driverName = "mock"

@@ -2,11 +2,11 @@ package fxpakpro
 
 import (
 	"context"
+	"github.com/alttpo/snes-devices/devices"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"github.com/alttpo/snes/asm"
 	"log"
 	"reflect"
-	"github.com/alttpo/snes-devices/devices"
-	"github.com/alttpo/snes-devices/protos/sni"
 	"testing"
 )
 

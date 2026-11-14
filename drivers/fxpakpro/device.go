@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/alttpo/snes-devices/devices"
 	"go.bug.st/serial"
 	"log"
-	"github.com/alttpo/snes-devices/devices"
 	"sync/atomic"
 	"time"
 )

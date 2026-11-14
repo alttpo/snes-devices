@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/alttpo/snes-devices/config"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"io"
 	"log"
 	"net/url"
-	"github.com/alttpo/snes-devices/config"
-	"github.com/alttpo/snes-devices/protos/sni"
 
 	"google.golang.org/grpc/codes"
 )

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/alttpo/snes-devices/devices"
 	"io"
 	"log"
-	"github.com/alttpo/snes-devices/devices"
 	"sync"
 
 	"google.golang.org/grpc/codes"

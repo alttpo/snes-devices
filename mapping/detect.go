@@ -6,10 +6,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/alttpo/snes"
-	"google.golang.org/grpc/codes"
-	"log"
 	"github.com/alttpo/snes-devices/devices"
 	"github.com/alttpo/snes-devices/protos/sni"
+	"google.golang.org/grpc/codes"
+	"log"
 )
 
 func Detect(

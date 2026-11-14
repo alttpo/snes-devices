@@ -3,12 +3,12 @@ package fxpakpro
 import (
 	"context"
 	"fmt"
-	"github.com/alttpo/snes/asm"
-	"github.com/alttpo/snes/timing"
-	"runtime/trace"
 	"github.com/alttpo/snes-devices/devices"
 	"github.com/alttpo/snes-devices/mapping"
 	"github.com/alttpo/snes-devices/protos/sni"
+	"github.com/alttpo/snes/asm"
+	"github.com/alttpo/snes/timing"
+	"runtime/trace"
 	"time"
 )
 

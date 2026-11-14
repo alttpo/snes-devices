@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"io"
 	"github.com/alttpo/snes-devices/devices"
+	"io"
 )
 
 // putFileVerifyAfterWrite controls the post-transfer INFO round trip below.

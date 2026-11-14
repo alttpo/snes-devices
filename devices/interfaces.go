@@ -2,9 +2,9 @@ package devices
 
 import (
 	"context"
+	"github.com/alttpo/snes-devices/protos/sni"
 	"io"
 	"net/url"
-	"github.com/alttpo/snes-devices/protos/sni"
 )
 
 type Driver interface {

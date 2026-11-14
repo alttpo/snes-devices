@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"io"
 	"github.com/alttpo/snes-devices/devices"
+	"io"
 )
 
 func (d *Device) getFile(ctx context.Context, path string, w io.Writer, sizeReceived devices.SizeReceivedFunc, progress devices.ProgressReportFunc) (received uint32, err error) {

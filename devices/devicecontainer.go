@@ -2,8 +2,8 @@ package devices
 
 import (
 	"fmt"
-	"net/url"
 	"github.com/alttpo/snes-devices/protos/sni"
+	"net/url"
 	"sync"
 )
 
