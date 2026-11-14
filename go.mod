@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	github.com/alttpo/snes v0.0.0-20250404054731-644082b79cd3
+	github.com/gobwas/ws v1.4.0
 	github.com/json-iterator/go v1.1.12
 	go.bug.st/serial v1.6.4
 	google.golang.org/grpc v1.76.0
@@ -12,6 +13,8 @@ require (
 
 require (
 	github.com/creack/goselect v0.1.2 // indirect
+	github.com/gobwas/httphead v0.1.0 // indirect
+	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	golang.org/x/net v0.42.0 // indirect

@@ -49,11 +49,11 @@ func Get() Config {
 // Empty is a Config with no settings.
 type Empty struct{}
 
-func (Empty) IsSet(string) bool                 { return false }
-func (Empty) GetBool(string) bool               { return false }
-func (Empty) GetString(string) string           { return "" }
-func (Empty) GetDuration(string) time.Duration  { return 0 }
-func (Empty) Name(key string) string            { return key }
+func (Empty) IsSet(string) bool                { return false }
+func (Empty) GetBool(string) bool              { return false }
+func (Empty) GetString(string) string          { return "" }
+func (Empty) GetDuration(string) time.Duration { return 0 }
+func (Empty) Name(key string) string           { return key }
 
 // Map is a simple Config backed by a map, useful for tests and simple hosts. Values may be bool, string or
 // time.Duration; strings are parsed for GetBool and GetDuration.
