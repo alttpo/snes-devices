@@ -3,7 +3,7 @@ module github.com/alttpo/snes-devices
 go 1.24.0
 
 require (
-	github.com/alttpo/snes v0.0.0-20250404054731-644082b79cd3
+	github.com/alttpo/snes v0.0.0-20261116181553-d91674793906
 	github.com/gobwas/ws v1.4.0
 	github.com/json-iterator/go v1.1.12
 	go.bug.st/serial v1.6.4
