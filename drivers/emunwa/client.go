@@ -262,28 +262,32 @@ func (c *Client) parseResponse(r *bufio.Reader) (bin []byte, ascii []map[string]
 
 	// expect ascii reply otherwise:
 	if d != '\n' {
-		err = fmt.Errorf("emunwa: command reply expected starting with '\\0' or '\\n' but got '%c'", d)
+		// the reply framing is lost, so later replies can't be matched to their commands:
+		err = c.FatalError(fmt.Errorf("command reply expected starting with '\\0' or '\\n' but got '%c'", d))
 		return
 	}
 
-	// parse ascii reply as array<map<string,string>>:
+	// parse ascii reply as array<map<string,string>>. Read line by line from r itself: a bufio.Scanner would read ahead
+	// past the end of this reply and swallow the start of the next one.
 	var b strings.Builder
-	var sr io.Reader
-	if config.Get().GetBool("verbose_logging") {
-		// copy all bytes read to a string builder so we can log it after all scanned data:
-		sr = io.TeeReader(r, &b)
-	} else {
-		sr = r
-	}
-
-	var s *bufio.Scanner
-	s = bufio.NewScanner(sr)
+	verbose := config.Get().GetBool("verbose_logging")
 
 	ascii = make([]map[string]string, 0, 4)
 	item := make(map[string]string)
-	for s.Scan() {
-		l := s.Text()
-		// empty line:
+	for {
+		var l string
+		l, err = r.ReadString('\n')
+		eof := err == io.EOF
+		if err != nil && !eof {
+			err = c.FatalError(err)
+			return
+		}
+		err = nil
+		if verbose {
+			b.WriteString(l)
+		}
+		l = strings.TrimRight(l, "\r\n")
+		// an empty line (or the end of the stream) ends the reply:
 		if l == "" {
 			break
 		}
@@ -302,6 +306,9 @@ func (c *Client) parseResponse(r *bufio.Reader) (bin []byte, ascii []map[string]
 		}
 
 		item[key] = value
+		if eof {
+			break
+		}
 	}
 
 	if len(item) > 0 {
@@ -399,17 +406,23 @@ func (c *Client) MultiReadMemory(ctx context.Context, reads ...devices.MemoryRea
 		}
 	}
 
-	// read back responses:
+	// read back responses. Every command sent gets exactly one reply, so read all of them even after an error reply;
+	// returning early would leave unread replies on the connection and every later read would get the reply to an
+	// earlier command:
+	var errReply error
 	for _, memType := range memTypes {
 		var bin []byte
 		var ascii []map[string]string
 		bin, ascii, err = c.readResponse(deadline)
 		if err != nil {
+			// the connection's state is unknown after a failed read:
 			return
 		}
 		if ascii != nil {
-			err = fmt.Errorf("emunwa: expecting binary reply but got ascii:\n%+v", ascii)
-			return
+			if errReply == nil {
+				errReply = fmt.Errorf("emunwa: expecting binary reply but got ascii:\n%+v", ascii)
+			}
+			continue
 		}
 
 		regions := readGroups[memType]
@@ -429,7 +442,7 @@ func (c *Client) MultiReadMemory(ctx context.Context, reads ...devices.MemoryRea
 		}
 	}
 
-	err = nil
+	err = errReply
 	return
 }
 
